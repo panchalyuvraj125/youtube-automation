@@ -1,0 +1,17 @@
+.env
+output/scripts/*
+output/thumbnails/*
+output/seo/*
+output/calendars/*
+!output/**/.gitkeep
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+token.json
+client_secret*.json
+*.egg-info/
+dist/
+build/
+.pytest_cache/
