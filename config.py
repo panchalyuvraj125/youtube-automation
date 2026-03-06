@@ -22,19 +22,30 @@ logging.basicConfig(
 
 def get_openai_key() -> str:
     """
-    Retrieve the OpenAI API key from environment variables.
+    Retrieve the OpenAI API key from environment variables (optional).
 
     Returns:
-        str: The OpenAI API key.
+        str: The OpenAI API key, or an empty string if not set.
+    """
+    return os.getenv("OPENAI_API_KEY", "")
+
+
+def get_gemini_key() -> str:
+    """
+    Retrieve the Google Gemini API key from environment variables.
+
+    Returns:
+        str: The Gemini API key.
 
     Raises:
-        ValueError: If the OPENAI_API_KEY environment variable is not set.
+        ValueError: If the GEMINI_API_KEY environment variable is not set.
     """
-    key = os.getenv("OPENAI_API_KEY", "")
+    key = os.getenv("GEMINI_API_KEY", "")
     if not key:
         raise ValueError(
-            "OPENAI_API_KEY is not set. "
-            "Please add it to your .env file or environment variables."
+            "GEMINI_API_KEY is not set. "
+            "Please add it to your .env file or environment variables. "
+            "Get a free key at https://aistudio.google.com/apikey"
         )
     return key
 

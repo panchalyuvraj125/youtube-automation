@@ -1,7 +1,7 @@
 """
 Content Calendar Module.
 
-Uses OpenAI API to generate a 30-day YouTube content calendar.
+Uses Google Gemini API to generate a 30-day YouTube content calendar.
 """
 
 import csv
@@ -11,9 +11,9 @@ import os
 from datetime import datetime, timedelta
 from typing import List
 
-import openai
+import google.generativeai as genai
 
-from config import get_openai_key
+from config import get_gemini_key
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def generate_calendar(
     videos_per_week: int = 3,
 ) -> list:
     """
-    Generate a YouTube content calendar using OpenAI GPT.
+    Generate a YouTube content calendar using Google Gemini.
 
     Parameters:
         niche (str): The YouTube channel niche (e.g., "personal finance").
@@ -43,7 +43,7 @@ def generate_calendar(
             - video_type (str): Type of video (tutorial, listicle, how-to, etc.).
 
     Raises:
-        RuntimeError: If the OpenAI API call fails.
+        RuntimeError: If the Gemini API call fails.
     """
     logger.info(
         "Generating %d-day content calendar for niche='%s', %d videos/week",
@@ -73,30 +73,21 @@ Return a JSON array where each element has these exact keys:
 Return only a valid JSON array with no extra text."""
 
     try:
-        client = openai.OpenAI(api_key=get_openai_key())
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert YouTube content strategist.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.8,
-        )
-        raw = response.choices[0].message.content.strip()
+        genai.configure(api_key=get_gemini_key())
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
         entries = json.loads(raw)
-    except openai.OpenAIError as exc:
-        logger.error("OpenAI API error: %s", exc)
-        raise RuntimeError(f"OpenAI API error: {exc}") from exc
     except json.JSONDecodeError as exc:
-        logger.error("Failed to parse OpenAI response as JSON: %s", exc)
+        logger.error("Failed to parse Gemini response as JSON: %s", exc)
         raise RuntimeError(f"Failed to parse calendar JSON: {exc}") from exc
+    except Exception as exc:
+        logger.error("Gemini API error: %s", exc)
+        raise RuntimeError(f"Gemini API error: {exc}") from exc
 
     # Assign dates — spread videos_per_week across each week
     calendar = []
