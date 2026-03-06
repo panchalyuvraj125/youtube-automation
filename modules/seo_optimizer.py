@@ -10,7 +10,7 @@ import logging
 import os
 from datetime import datetime
 
-import google.generativeai as genai
+from google import genai
 
 from config import get_gemini_key
 
@@ -64,9 +64,11 @@ Return a JSON object with these exact keys:
 Return only valid JSON with no extra text."""
 
     try:
-        genai.configure(api_key=get_gemini_key())
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
+        client = genai.Client(api_key=get_gemini_key())
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+        )
         raw = response.text.strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
