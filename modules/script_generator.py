@@ -1,7 +1,7 @@
 """
 Script Generator Module.
 
-Uses OpenAI API (GPT model) to generate full YouTube video scripts.
+Uses Google Gemini API to generate full YouTube video scripts.
 """
 
 import json
@@ -10,9 +10,9 @@ import os
 from datetime import datetime
 from typing import List
 
-import openai
+import google.generativeai as genai
 
-from config import get_openai_key
+from config import get_gemini_key
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def generate_script(
     duration_minutes: int = 10,
 ) -> dict:
     """
-    Generate a full YouTube video script using OpenAI GPT.
+    Generate a full YouTube video script using Google Gemini.
 
     Parameters:
         topic (str): The video topic.
@@ -43,7 +43,7 @@ def generate_script(
             - outro (str): Closing section.
 
     Raises:
-        RuntimeError: If the OpenAI API call fails.
+        RuntimeError: If the Gemini API call fails.
     """
     logger.info("Generating script for topic='%s', niche='%s'", topic, niche)
 
@@ -63,28 +63,22 @@ Return a JSON object with these exact keys:
 Return only valid JSON with no extra text."""
 
     try:
-        client = openai.OpenAI(api_key=get_openai_key())
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert YouTube scriptwriter."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-        )
-        raw = response.choices[0].message.content.strip()
+        genai.configure(api_key=get_gemini_key())
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
         # Strip markdown code fences if present
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
         script_data = json.loads(raw)
-    except openai.OpenAIError as exc:
-        logger.error("OpenAI API error: %s", exc)
-        raise RuntimeError(f"OpenAI API error: {exc}") from exc
     except json.JSONDecodeError as exc:
-        logger.error("Failed to parse OpenAI response as JSON: %s", exc)
+        logger.error("Failed to parse Gemini response as JSON: %s", exc)
         raise RuntimeError(f"Failed to parse script JSON: {exc}") from exc
+    except Exception as exc:
+        logger.error("Gemini API error: %s", exc)
+        raise RuntimeError(f"Gemini API error: {exc}") from exc
 
     # Validate required keys
     required_keys = ["hook", "intro", "body", "call_to_action", "outro"]

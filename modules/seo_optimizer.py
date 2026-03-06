@@ -1,7 +1,7 @@
 """
 SEO Optimizer Module.
 
-Uses OpenAI API to generate optimized YouTube titles, descriptions,
+Uses Google Gemini API to generate optimized YouTube titles, descriptions,
 tags, and hashtags.
 """
 
@@ -10,9 +10,9 @@ import logging
 import os
 from datetime import datetime
 
-import openai
+import google.generativeai as genai
 
-from config import get_openai_key
+from config import get_gemini_key
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def optimize_seo(
             - hashtags (list): 5-10 hashtags.
 
     Raises:
-        RuntimeError: If the OpenAI API call fails.
+        RuntimeError: If the Gemini API call fails.
     """
     logger.info("Optimizing SEO for topic='%s', niche='%s'", topic, niche)
 
@@ -64,27 +64,21 @@ Return a JSON object with these exact keys:
 Return only valid JSON with no extra text."""
 
     try:
-        client = openai.OpenAI(api_key=get_openai_key())
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert YouTube SEO specialist."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-        )
-        raw = response.choices[0].message.content.strip()
+        genai.configure(api_key=get_gemini_key())
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
         seo_data = json.loads(raw)
-    except openai.OpenAIError as exc:
-        logger.error("OpenAI API error: %s", exc)
-        raise RuntimeError(f"OpenAI API error: {exc}") from exc
     except json.JSONDecodeError as exc:
-        logger.error("Failed to parse OpenAI response as JSON: %s", exc)
+        logger.error("Failed to parse Gemini response as JSON: %s", exc)
         raise RuntimeError(f"Failed to parse SEO JSON: {exc}") from exc
+    except Exception as exc:
+        logger.error("Gemini API error: %s", exc)
+        raise RuntimeError(f"Gemini API error: {exc}") from exc
 
     # Validate required keys
     required_keys = ["titles", "description", "tags", "hashtags"]

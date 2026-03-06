@@ -1,9 +1,10 @@
 # 🎬 YouTube Automation System
 
-> **Automate the repetitive parts of running a YouTube channel — from script writing to publishing — powered by AI.**
+> **Automate the repetitive parts of running a YouTube channel — from script writing to publishing — powered by AI. 100% FREE using Google Gemini API!**
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Free AI](https://img.shields.io/badge/AI-Google%20Gemini%20(FREE)-green)](https://aistudio.google.com/apikey)
 
 ---
 
@@ -23,7 +24,7 @@
 ## 🛠️ Prerequisites
 
 - **Python 3.8+**
-- **OpenAI API key** — for script generation, SEO, and content calendar
+- **Google Gemini API key** (FREE) — for script generation, SEO, and content calendar
 - **Google Cloud project** with YouTube Data API v3 enabled — for upload and analytics
 
 ---
@@ -52,12 +53,14 @@ cp .env.example .env
 
 ## 🔑 How to Get API Keys
 
-### OpenAI API Key
+### Google Gemini API Key (FREE 🎉)
 
-1. Visit [platform.openai.com](https://platform.openai.com/)
-2. Sign in or create an account
-3. Go to **API keys** → **Create new secret key**
-4. Copy the key and add it to your `.env` file as `OPENAI_API_KEY`
+1. Visit [Google AI Studio](https://aistudio.google.com/apikey)
+2. Sign in with your Google account
+3. Click **Create API key**
+4. Copy the key and add it to your `.env` file as `GEMINI_API_KEY`
+
+> **No credit card required!** The Gemini API free tier is generous and perfect for this project.
 
 ### YouTube Data API (Google Cloud Console)
 
@@ -186,7 +189,7 @@ youtube-automation/
 
 | Module | Function | Description |
 |--------|----------|-------------|
-| `script_generator` | `generate_script(topic, niche, tone, duration_minutes)` | Generates a complete video script using GPT |
+| `script_generator` | `generate_script(topic, niche, tone, duration_minutes)` | Generates a complete video script using Gemini |
 | `seo_optimizer` | `optimize_seo(topic, niche, target_audience)` | Generates titles, description, tags, hashtags |
 | `thumbnail_generator` | `create_thumbnail(title, subtitle, bg_color, text_color, output_path)` | Creates a 1280×720 PNG thumbnail |
 | `content_calendar` | `generate_calendar(niche, days, videos_per_week)` | Generates a content calendar as JSON + CSV |
@@ -201,7 +204,7 @@ youtube-automation/
 pytest tests/ -v
 ```
 
-All modules are tested with mocked external APIs (OpenAI and YouTube) so no real credentials are needed to run tests.
+All modules are tested with mocked external APIs (Google Gemini and YouTube) so no real credentials are needed to run tests.
 
 ---
 

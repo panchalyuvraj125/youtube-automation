@@ -29,18 +29,14 @@ MOCK_SCRIPT = {
 class TestScriptGenerator(unittest.TestCase):
     """Unit tests for the generate_script function."""
 
-    @patch("modules.script_generator.get_openai_key", return_value="fake-key")
-    @patch("modules.script_generator.openai.OpenAI")
-    def test_generate_script_returns_required_keys(self, mock_openai_cls, _mock_key):
+    @patch("modules.script_generator.get_gemini_key", return_value="fake-key")
+    @patch("modules.script_generator.genai")
+    def test_generate_script_returns_required_keys(self, mock_genai, _mock_key):
         """generate_script should return a dict with all required keys."""
-        mock_client = MagicMock()
-        mock_openai_cls.return_value = mock_client
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[
-                MagicMock(
-                    message=MagicMock(content=json.dumps(MOCK_SCRIPT))
-                )
-            ]
+        mock_model = MagicMock()
+        mock_genai.GenerativeModel.return_value = mock_model
+        mock_model.generate_content.return_value = MagicMock(
+            text=json.dumps(MOCK_SCRIPT)
         )
 
         result = generate_script(topic="AI Tools", niche="tech")
@@ -49,61 +45,53 @@ class TestScriptGenerator(unittest.TestCase):
         for key in ("hook", "intro", "body", "call_to_action", "outro"):
             self.assertIn(key, result, f"Missing key: {key}")
 
-    @patch("modules.script_generator.get_openai_key", return_value="fake-key")
-    @patch("modules.script_generator.openai.OpenAI")
-    def test_generate_script_body_is_list(self, mock_openai_cls, _mock_key):
+    @patch("modules.script_generator.get_gemini_key", return_value="fake-key")
+    @patch("modules.script_generator.genai")
+    def test_generate_script_body_is_list(self, mock_genai, _mock_key):
         """generate_script body should be a list of sections."""
-        mock_client = MagicMock()
-        mock_openai_cls.return_value = mock_client
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[
-                MagicMock(message=MagicMock(content=json.dumps(MOCK_SCRIPT)))
-            ]
+        mock_model = MagicMock()
+        mock_genai.GenerativeModel.return_value = mock_model
+        mock_model.generate_content.return_value = MagicMock(
+            text=json.dumps(MOCK_SCRIPT)
         )
 
         result = generate_script(topic="AI Tools", niche="tech")
         self.assertIsInstance(result["body"], list)
         self.assertTrue(len(result["body"]) > 0)
 
-    @patch("modules.script_generator.get_openai_key", return_value="fake-key")
-    @patch("modules.script_generator.openai.OpenAI")
-    def test_generate_script_saves_file(self, mock_openai_cls, _mock_key):
+    @patch("modules.script_generator.get_gemini_key", return_value="fake-key")
+    @patch("modules.script_generator.genai")
+    def test_generate_script_saves_file(self, mock_genai, _mock_key):
         """generate_script should save a JSON file and return its path."""
-        mock_client = MagicMock()
-        mock_openai_cls.return_value = mock_client
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[
-                MagicMock(message=MagicMock(content=json.dumps(MOCK_SCRIPT)))
-            ]
+        mock_model = MagicMock()
+        mock_genai.GenerativeModel.return_value = mock_model
+        mock_model.generate_content.return_value = MagicMock(
+            text=json.dumps(MOCK_SCRIPT)
         )
 
         result = generate_script(topic="Test Topic", niche="tech")
         self.assertIn("_output_file", result)
         self.assertTrue(os.path.exists(result["_output_file"]))
 
-    @patch("modules.script_generator.get_openai_key", return_value="fake-key")
-    @patch("modules.script_generator.openai.OpenAI")
-    def test_generate_script_raises_on_api_error(self, mock_openai_cls, _mock_key):
-        """generate_script should raise RuntimeError on OpenAI API failure."""
-        import openai as openai_mod
-
-        mock_client = MagicMock()
-        mock_openai_cls.return_value = mock_client
-        mock_client.chat.completions.create.side_effect = openai_mod.OpenAIError("API error")
+    @patch("modules.script_generator.get_gemini_key", return_value="fake-key")
+    @patch("modules.script_generator.genai")
+    def test_generate_script_raises_on_api_error(self, mock_genai, _mock_key):
+        """generate_script should raise RuntimeError on Gemini API failure."""
+        mock_model = MagicMock()
+        mock_genai.GenerativeModel.return_value = mock_model
+        mock_model.generate_content.side_effect = Exception("API error")
 
         with self.assertRaises(RuntimeError):
             generate_script(topic="AI Tools", niche="tech")
 
-    @patch("modules.script_generator.get_openai_key", return_value="fake-key")
-    @patch("modules.script_generator.openai.OpenAI")
-    def test_generate_script_handles_markdown_fences(self, mock_openai_cls, _mock_key):
+    @patch("modules.script_generator.get_gemini_key", return_value="fake-key")
+    @patch("modules.script_generator.genai")
+    def test_generate_script_handles_markdown_fences(self, mock_genai, _mock_key):
         """generate_script should handle JSON wrapped in markdown code fences."""
-        mock_client = MagicMock()
-        mock_openai_cls.return_value = mock_client
+        mock_model = MagicMock()
+        mock_genai.GenerativeModel.return_value = mock_model
         fenced = f"```json\n{json.dumps(MOCK_SCRIPT)}\n```"
-        mock_client.chat.completions.create.return_value = MagicMock(
-            choices=[MagicMock(message=MagicMock(content=fenced))]
-        )
+        mock_model.generate_content.return_value = MagicMock(text=fenced)
 
         result = generate_script(topic="AI Tools", niche="tech")
         self.assertIn("hook", result)
