@@ -52,9 +52,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_optimize_seo_returns_required_keys(self, mock_genai, _mock_key):
         """optimize_seo should return a dict with titles, description, tags, hashtags."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
 
         result = optimize_seo(topic="AI Tools", niche="tech")
 
@@ -65,9 +65,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_titles_is_list_of_10(self, mock_genai, _mock_key):
         """titles should be a list of exactly 10 items."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
 
         result = optimize_seo(topic="AI Tools", niche="tech")
         self.assertIsInstance(result["titles"], list)
@@ -77,9 +77,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_tags_has_at_least_30(self, mock_genai, _mock_key):
         """tags should contain at least 30 items."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
 
         result = optimize_seo(topic="AI Tools", niche="tech")
         self.assertIsInstance(result["tags"], list)
@@ -89,9 +89,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_hashtags_count_range(self, mock_genai, _mock_key):
         """hashtags should be a list of 5 to 10 items."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
 
         result = optimize_seo(topic="AI Tools", niche="tech")
         self.assertIsInstance(result["hashtags"], list)
@@ -102,9 +102,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_description_is_string(self, mock_genai, _mock_key):
         """description should be a non-empty string."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
 
         result = optimize_seo(topic="AI Tools", niche="tech")
         self.assertIsInstance(result["description"], str)
@@ -114,9 +114,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_optimize_seo_saves_file(self, mock_genai, _mock_key):
         """optimize_seo should save a JSON file and include its path."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(text=json.dumps(MOCK_SEO))
 
         result = optimize_seo(topic="AI Tools", niche="tech")
         self.assertIn("_output_file", result)
@@ -126,9 +126,9 @@ class TestSEOOptimizer(unittest.TestCase):
     @patch("modules.seo_optimizer.genai")
     def test_optimize_seo_raises_on_api_error(self, mock_genai, _mock_key):
         """optimize_seo should raise RuntimeError on Gemini API failure."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.side_effect = Exception("fail")
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.side_effect = Exception("fail")
 
         with self.assertRaises(RuntimeError):
             optimize_seo(topic="AI Tools", niche="tech")

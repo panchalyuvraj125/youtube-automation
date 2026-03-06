@@ -34,9 +34,9 @@ class TestContentCalendar(unittest.TestCase):
     def test_returns_list(self, mock_genai, _mock_key):
         """generate_calendar should return a list."""
         entries = _make_entries(13)
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(entries)
         )
 
@@ -49,9 +49,9 @@ class TestContentCalendar(unittest.TestCase):
         """generate_calendar entry count should match videos_per_week * weeks."""
         # For 30 days, 3 videos/week → ~13 entries (4 weeks * 3 + remaining)
         entries = _make_entries(13)
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(entries)
         )
 
@@ -65,9 +65,9 @@ class TestContentCalendar(unittest.TestCase):
     def test_entries_have_required_keys(self, mock_genai, _mock_key):
         """Each calendar entry should have title, description, keywords, video_type, date, day."""
         entries = _make_entries(6)
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(entries)
         )
 
@@ -84,9 +84,9 @@ class TestContentCalendar(unittest.TestCase):
         import tempfile
 
         entries = _make_entries(6)
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(entries)
         )
 
@@ -108,9 +108,9 @@ class TestContentCalendar(unittest.TestCase):
     @patch("modules.content_calendar.genai")
     def test_raises_on_api_error(self, mock_genai, _mock_key):
         """generate_calendar should raise RuntimeError on Gemini API failure."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.side_effect = Exception("fail")
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.side_effect = Exception("fail")
 
         with self.assertRaises(RuntimeError):
             generate_calendar(niche="tech")

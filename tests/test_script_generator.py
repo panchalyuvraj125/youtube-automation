@@ -33,9 +33,9 @@ class TestScriptGenerator(unittest.TestCase):
     @patch("modules.script_generator.genai")
     def test_generate_script_returns_required_keys(self, mock_genai, _mock_key):
         """generate_script should return a dict with all required keys."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(MOCK_SCRIPT)
         )
 
@@ -49,9 +49,9 @@ class TestScriptGenerator(unittest.TestCase):
     @patch("modules.script_generator.genai")
     def test_generate_script_body_is_list(self, mock_genai, _mock_key):
         """generate_script body should be a list of sections."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(MOCK_SCRIPT)
         )
 
@@ -63,9 +63,9 @@ class TestScriptGenerator(unittest.TestCase):
     @patch("modules.script_generator.genai")
     def test_generate_script_saves_file(self, mock_genai, _mock_key):
         """generate_script should save a JSON file and return its path."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.return_value = MagicMock(
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.return_value = MagicMock(
             text=json.dumps(MOCK_SCRIPT)
         )
 
@@ -77,9 +77,9 @@ class TestScriptGenerator(unittest.TestCase):
     @patch("modules.script_generator.genai")
     def test_generate_script_raises_on_api_error(self, mock_genai, _mock_key):
         """generate_script should raise RuntimeError on Gemini API failure."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
-        mock_model.generate_content.side_effect = Exception("API error")
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
+        mock_client.models.generate_content.side_effect = Exception("API error")
 
         with self.assertRaises(RuntimeError):
             generate_script(topic="AI Tools", niche="tech")
@@ -88,10 +88,10 @@ class TestScriptGenerator(unittest.TestCase):
     @patch("modules.script_generator.genai")
     def test_generate_script_handles_markdown_fences(self, mock_genai, _mock_key):
         """generate_script should handle JSON wrapped in markdown code fences."""
-        mock_model = MagicMock()
-        mock_genai.GenerativeModel.return_value = mock_model
+        mock_client = MagicMock()
+        mock_genai.Client.return_value = mock_client
         fenced = f"```json\n{json.dumps(MOCK_SCRIPT)}\n```"
-        mock_model.generate_content.return_value = MagicMock(text=fenced)
+        mock_client.models.generate_content.return_value = MagicMock(text=fenced)
 
         result = generate_script(topic="AI Tools", niche="tech")
         self.assertIn("hook", result)
